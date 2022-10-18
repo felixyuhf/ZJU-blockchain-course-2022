@@ -1,6 +1,4 @@
-# ZJU-blockchain-course-2022
-
-⬆ 可以️修改成你自己的项目名。
+# ZJU-blockchain-course-yhf-3190104140
 
 > 第二次作业要求（可以删除）：
 > 
@@ -53,4 +51,7 @@
 
 课程的参考Demo见：[DEMOs](https://github.com/LBruyne/blockchain-course-demos)。
 
-如果有其它参考的内容，也请在这里陈列。
+
+
+[1] [IntelliJ IDEA2022.2.3 破解教程 ](http://blog.idejihuo.com/jetbrains/intellij-idea-2022-2-3-tutorial-permanently-activate-tutorial.html)
+
