@@ -49,9 +49,16 @@
 
 ## 参考内容
 
-课程的参考Demo见：[DEMOs](https://github.com/LBruyne/blockchain-course-demos)。
-
-
+[0] [课程参考DEMOs](https://github.com/LBruyne/blockchain-course-demos)
 
 [1] [IntelliJ IDEA2022.2.3 破解教程 ](http://blog.idejihuo.com/jetbrains/intellij-idea-2022-2-3-tutorial-permanently-activate-tutorial.html)
 
+[2] [Solidity文档](https://docs.soliditylang.org/en/v0.8.17/)
+
+[3] [Solidity - 算术运算的截断模式（unchecked）与检查模式（checked）- 0.8.0新特性](https://blog.csdn.net/ling1998/article/details/125550140)
+
+[4] [openzeppelin文档](https://docs.openzeppelin.com/contracts/3.x/)
+
+[5] [Mac终端使用技巧 切换到其他路径和目录](https://blog.csdn.net/robinson_911/article/details/53054104)
+
+[6] [npm install 失败相关](https://blog.csdn.net/yqx_123/article/details/118787849)、[npm install 报错没有匹配版本：No matching version found for](https://blog.csdn.net/qq_27127385/article/details/104922311)
