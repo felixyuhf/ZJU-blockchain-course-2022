@@ -62,3 +62,5 @@
 [5] [Mac终端使用技巧 切换到其他路径和目录](https://blog.csdn.net/robinson_911/article/details/53054104)
 
 [6] [npm install 失败相关](https://blog.csdn.net/yqx_123/article/details/118787849)、[npm install 报错没有匹配版本：No matching version found for](https://blog.csdn.net/qq_27127385/article/details/104922311)
+
+[7] [React文档](https://create-react-app.dev/docs/getting-started/)
