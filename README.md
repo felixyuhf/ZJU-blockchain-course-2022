@@ -64,3 +64,9 @@
 [6] [npm install 失败相关](https://blog.csdn.net/yqx_123/article/details/118787849)、[npm install 报错没有匹配版本：No matching version found for](https://blog.csdn.net/qq_27127385/article/details/104922311)
 
 [7] [React文档](https://create-react-app.dev/docs/getting-started/)
+
+[8] [React菜鸟教程](https://www.runoob.com/react/react-tutorial.html)
+
+[React+Material UI-From zero to hero](https://www.youtube.com/playlist?list=PLDxCaNaYIuUlG5ZqoQzFE27CUOoQvOqnQ)
+
+[ReactRouter文档](https://reactrouter.com/en/main/start/tutorial)
