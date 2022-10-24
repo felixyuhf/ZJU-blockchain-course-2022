@@ -2,7 +2,7 @@ import React from 'react'
 import Button from '@mui/material/Button';
 import {chipClasses} from "@mui/material";
 
-const CommonButton = ({children,color,disabled,size,variant,sx}) => {
+const CommonButton = ({children,color,disabled,size,variant,sx,onClick}) => {
 
     return (
         <Button
@@ -11,6 +11,7 @@ const CommonButton = ({children,color,disabled,size,variant,sx}) => {
             size={size}
             variant={variant}
             sx={sx}
+            onClick={onClick}
 
         >
             {children}

@@ -9,11 +9,18 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import GridWrapper from '../../components/common/GridWrapper/GridWrapper';
 import {cardHeaderStyles} from './styles';
-import BasicModal from "../../components/common/BasicModal/BasicModal";
+import Input from "@mui/material/Input";
+import {modalStyles} from "../../components/common/BasicModal/styles";
+import {TextField} from "@mui/material";
+import {useForm} from 'react-hook-form';
+import NewVoteModal from "../../components/Modals/NewVoteModal";
+// import { yupResolver } from '@hookform/resolvers/yup';
+// import * as Yup from 'yup'
 
 
 const Vote = () => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
+    const [votes, setVotes] = useState(false)
 
     const getHeader = () => {
         const handleChange = (value) => {
@@ -21,14 +28,13 @@ const Vote = () => {
         };
 
         const newVote = () => {
-            setOpen(true);
-            console.log('click')
+            setOpen(true)
         };
 
         return (
             <Box sx={cardHeaderStyles.wrapper}>
                 <SearchBar
-                    placeholder="搜索我的提案"
+                    placeholder="搜索提案"
                     onChange={(event) => handleChange(event.target.value)}
                     searchBarWidth='720px'
                 />
@@ -42,9 +48,6 @@ const Vote = () => {
                         新建提案
                     </CommonButton>
 
-                    <IconButton>
-                        <RefreshIcon/>
-                    </IconButton>
                 </Box>
             </Box>
         )
@@ -55,9 +58,14 @@ const Vote = () => {
             align="center"
             sx={{margin: '40px 16px', color: 'rgba(0, 0, 0, 0.6)', fontSize: '1.3rem'}}
         >
-            当前没有提案
+            暂无提案
         </Typography>
     );
+
+
+    const addNewVote =(data)=>{
+        console.log(data)
+    };
 
     return (
         <GridWrapper>
@@ -65,29 +73,21 @@ const Vote = () => {
                 header={getHeader()}
                 content={getContent()}
             />
-            <BasicModal
+            {/*<BasicModal*/}
+            {/*    open={open}*/}
+            {/*    onClose={() => setOpen(false)}*/}
+            {/*    title="新建提案"*/}
+            {/*    content={getInput()}*/}
+            {/*    onSubmit={handleSubmit()}*/}
+
+            {/*/>*/}
+            <NewVoteModal
                 open={open}
+                onClose={() => setOpen(false)}
+                addNewVote={addNewVote}
             />
         </GridWrapper>
     )
-
-    // const getSearchBar = () => {
-    //     const handleChange = (value) => {
-    //         console.log(value);
-    //     };
-    //     return (
-    //         <SearchBar
-    //             placeholder="搜索我的提案"
-    //             onChange={(event) => handleChange(event.target.value)}
-    //         />
-    //     )
-    // }
-    //
-    // return (
-    //     <Grid item xs={8}>
-    //         <BasicCard Header={getSearchBar()}/>
-    //     </Grid>
-    // )
 
 }
 
