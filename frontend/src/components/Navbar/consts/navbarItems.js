@@ -14,7 +14,7 @@ export const mainNavbarItems = [
     {
         id:1,
         icon: <HowToVoteIcon />,
-        label:'我的提案',
+        label:'提案广场',
         route:'vote',
     },
     {

@@ -16,12 +16,19 @@ import {useForm} from 'react-hook-form';
 import NewVoteModal from "../../components/Modals/NewVoteModal";
 // import { yupResolver } from '@hookform/resolvers/yup';
 // import * as Yup from 'yup'
+import PaidIcon from '@mui/icons-material/Paid';
 
+
+const GanacheTestChainId = '0x539' // Ganache默认的ChainId = 0x539 = Hex(1337)
+// TODO change according to your configuration
+const GanacheTestChainName = 'Ganache Test Chain'
+const GanacheTestChainRpcUrl = 'http://127.0.0.1:8545'
 
 const Vote = () => {
     const [open, setOpen] = useState(false);
     const [votes, setVotes] = useState([]);
     const [searchResults, setsearchResults] = useState(votes);
+
 
     const getHeader = () => {
         const handleSearch = (value) => {
@@ -88,7 +95,7 @@ const Vote = () => {
                                 variant="contained"
                                 //onClick={newVote}
                                 size="small"
-                                sx={cardHeaderStyles.newVoteButton}
+                                sx={cardHeaderStyles.buttonStyles}
                             >
                                 赞成
                             </CommonButton>
@@ -97,7 +104,7 @@ const Vote = () => {
                                 variant="outlined"
                                 //onClick={newVote}
                                 size="small"
-                                sx={cardHeaderStyles.newVoteButton}
+                                sx={cardHeaderStyles.buttonStyles}
                             >
                                 反对
                             </CommonButton>
@@ -119,6 +126,34 @@ const Vote = () => {
 
     return (
         <GridWrapper>
+            <Box sx={cardHeaderStyles.wrapper}>
+
+                <div>
+                    当前用户：
+                </div>
+
+            </Box>
+
+
+            <Box sx={cardHeaderStyles.wrapper}>
+
+                <div>
+                    我的通证积分：
+                </div>
+
+                <Box>
+                    <CommonButton
+                        variant="contained"
+                        //onClick={newVote}
+                        size="large"
+                        sx={cardHeaderStyles.newVoteButton}
+                    >
+                        领取通证积分
+                    </CommonButton>
+                </Box>
+            </Box>
+
+
             <BasicCard
                 header={getHeader()}
                 content={getContent()}

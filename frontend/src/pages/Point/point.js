@@ -2,6 +2,7 @@ import React from 'react'
 import Grid from '@mui/material/Grid';
 import CommonButton from "../../components/common/CommonButton/CommonButton";
 import BasicCard from "../../components/common/BasicCard/BasicCard";
+import GridWrapper from "../../components/common/GridWrapper/GridWrapper";
 
 const Point = () => {
     const buttonStyles = {
@@ -26,29 +27,33 @@ const Point = () => {
     }
 
     return (
-        <Grid
-            item
-            xs={8}
-        >
-            This is point page
-            <CommonButton
-                size="large"
-                variant="contained"
-                sx={buttonStyles}
+        <GridWrapper>
+            我拥有的通证积分：
+            <Grid
+                item
+                xs={8}
             >
-                button1
-            </CommonButton>
 
-            <CommonButton
-                size="large"
-                variant="outlined"
-                sx={buttonStyles}
-            >
-                button2
-            </CommonButton>
+                <CommonButton
+                    size="large"
+                    variant="contained"
+                    sx={buttonStyles}
+                >
+                    button1
+                </CommonButton>
+
+                <CommonButton
+                    size="large"
+                    variant="outlined"
+                    sx={buttonStyles}
+                >
+                    button2
+                </CommonButton>
 
 
-        </Grid>
+            </Grid>
+        </GridWrapper>
+
     )
 }
 
