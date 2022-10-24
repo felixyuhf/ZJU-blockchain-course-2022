@@ -70,3 +70,5 @@
 [React+Material UI-From zero to hero](https://www.youtube.com/playlist?list=PLDxCaNaYIuUlG5ZqoQzFE27CUOoQvOqnQ)
 
 [ReactRouter文档](https://reactrouter.com/en/main/start/tutorial)
+
+[Hardhat - 警告合约代码超长解决方案](https://blog.csdn.net/ling1998/article/details/125158721)
