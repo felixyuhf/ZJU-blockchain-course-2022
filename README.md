@@ -72,3 +72,5 @@
 [ReactRouter文档](https://reactrouter.com/en/main/start/tutorial)
 
 [Hardhat - 警告合约代码超长解决方案](https://blog.csdn.net/ling1998/article/details/125158721)
+
+[Migrating from JavaScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)
