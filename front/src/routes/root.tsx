@@ -22,6 +22,7 @@ export default function Root() {
     const [playerNumber, setPlayerNumber] = useState(0)
     const [managerAccount, setManagerAccount] = useState('')
 
+    //账户相关
     useEffect(() => {
         // 初始化检查用户是否已经连接钱包
         // 查看window对象里是否存在ethereum（metamask安装后注入的）对象
@@ -97,7 +98,9 @@ export default function Root() {
                         icon={<UserAddOutlined />}
                         onClick={onClickConnectWallet}
                     />
-                    <div>当前用户：{account === '' ? '无用户连接' : account}</div>
+                    <div>
+                        当前用户：{account === '' ? '无用户连接' : account}
+                    </div>
 
 
 
