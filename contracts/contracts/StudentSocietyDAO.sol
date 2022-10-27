@@ -35,6 +35,7 @@ contract StudentSocietyDAO {
     constructor() {
         // maybe you need a constructor
         UserToken = new MyERC20("UserToken","UT");
+
     }
 
 }
