@@ -6,17 +6,16 @@ import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import * as Yup from 'yup'
 import {Button, Modal} from 'antd';
+import {web3,StudentSocietyDAOContract,MyERC20Contract} from "../utils/contracts";
+
 import 'antd/dist/antd.css'; // or 'antd/dist/antd.less'
 import {FileSearchOutlined} from "@ant-design/icons";
-import BasicModal from "../components/common/BasicModal/BasicModal";
 
 const {TextArea} = Input;
 
 const defaultInputValues = {
     ProposalContent: '',
 };
-
-const onSearch = (value: string) => console.log(value);
 
 export default function Proposal() {
 
