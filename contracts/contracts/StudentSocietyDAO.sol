@@ -1,42 +1,40 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-// Uncomment the line to use openzeppelin/ERC20
-// You can use this dependency directly because it has been installed already
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "./MyERC20.sol";
 
 contract StudentSocietyDAO {
-
     // use a event if you want
     event ProposalInitiated(uint32 proposalIndex);
 
+    //提案
     struct Proposal {
-        uint32 index;      // index of this proposal
-        address proposer;  // who make this proposal
-        uint256 startTime; // proposal start time
-        uint256 duration;  // proposal duration
-        string name;       // proposal name
-        // ...
-        // TODO add any member if you want
+        uint32 index;      // 编号
+        address proposer;  // 发起者
+        string content;   // 内容
+        uint256 startTime; // 开始时间
+        uint256 endTime;   // 截止时间
+        Status StatusProposal; //提案状态
+    }
+    enum Status{
+        isVoting,
+        isPassed,
+        isUnpassed
     }
 
-    ERC20 studentERC20;
+
+
     mapping(uint32 => Proposal) proposals; // A map from proposal index to proposal
-    // ...
-    // TODO add any variables if you want
+
+    //通证积分
+    MyERC20 public UserToken;
+
+
 
     constructor() {
         // maybe you need a constructor
-        studentERC20 = new ERC20("name", "symbol");
+        UserToken = new MyERC20("UserToken","UT");
     }
 
-    function helloworld() pure external returns(string memory) {
-        return "hello world";
-    }
-
-    // ...
-    // TODO add any logic if you want
 }
