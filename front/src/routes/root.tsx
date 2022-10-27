@@ -1,13 +1,16 @@
-import {Outlet,Link} from "react-router-dom";
+import {Outlet, Link} from "react-router-dom";
 import {useEffect, useState} from 'react';
-import {web3,StudentSocietyDAOContract,MyERC20Contract} from "../utils/contracts";
-import { Button ,Tooltip} from 'antd';
+import {web3, StudentSocietyDAOContract, MyERC20Contract} from "../utils/contracts";
+import {Layout, Button, Tooltip, Col, Row} from 'antd';
+import './root.css'
 
 import {
     UserOutlined,
     UserAddOutlined,
     DollarCircleOutlined,
 } from '@ant-design/icons';
+
+const {Header, Content, Footer} = Layout;
 
 const GanacheTestChainId = '0x539' // Ganache默认的ChainId = 0x539 = Hex(1337)
 // TODO change according to your configuration
@@ -17,6 +20,7 @@ const GanacheTestChainRpcUrl = 'http://127.0.0.1:8545'
 export default function Root() {
 
     const [account, setAccount] = useState('')
+
     const [accountBalance, setAccountBalance] = useState(0)
     const [playAmount, setPlayAmount] = useState(0)
     const [totalAmount, setTotalAmount] = useState(0)
@@ -33,7 +37,7 @@ export default function Root() {
             if (Boolean(ethereum && ethereum.isMetaMask)) {
                 // 尝试获取连接的用户账户
                 const accounts = await web3.eth.getAccounts()
-                if(accounts && accounts.length) {
+                if (accounts && accounts.length) {
                     //第一个连接账户为accounts0
                     setAccount(accounts[0])
                 }
@@ -83,11 +87,34 @@ export default function Root() {
 
     }
 
+    //获取用户信息
+    const getAllUser = async () => {
+        if (StudentSocietyDAOContract && MyERC20Contract) {
+            try {
+                const _userBalance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
+
+
+                const _userInfo = {balance: +_userBalance}
+                setUserInfo(_userInfo)
+
+            } catch (error: any) {
+                alert(error.message)
+            }
+        } else {
+            alert('Contract not exists.')
+        }
+
+    }
+    useEffect(() => {
+        if (account !== '') {
+            getAllUser()
+        }
+    }, [account]);
 
 
     //首次领取通证积分
     const onClickGetIniToken = async () => {
-        if(account === '') {
+        if (account === '') {
             alert('You have not connected wallet yet.')
             return
         }
@@ -109,92 +136,55 @@ export default function Root() {
 
 
     const [userInfo, setUserInfo] = useState({
-        balance:0,
+        balance: 0,
     })
 
 
-
-
-    const getAllUser = async ()=>{
-        if(StudentSocietyDAOContract && MyERC20Contract){
-            try{
-                const _userBalance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
-
-
-                const _userInfo = {balance:+_userBalance}
-                setUserInfo(_userInfo)
-
-            }catch (error: any) {
-                alert(error.message)
-            }
-        }
-        else {
-            alert('Contract not exists.')
-        }
-
-    }
-    useEffect(() => {
-        if(account !== ''){
-            getAllUser()
-        }
-    }, [account]);
-
-
     return (
-        <>
-            <div id="sidebar">
-                {/*<h1>React Router Contacts</h1>*/}
+        <Layout>
+            <Header style={{position: 'fixed', zIndex: 1, width: '100%'}}>
+                <Row>
+                    <Col span={1}>
+                        <Tooltip title="连接钱包">
+                            <Button
+                                shape="circle"
+                                icon={<UserAddOutlined/>}
+                                onClick={onClickConnectWallet}
+                            />
+                        </Tooltip>
+                    </Col>
+                    <Col span={11}>
+                        <div style={{color:'white'}}>
+                            当前用户：{account === '' ? '无用户连接' : account}
+                        </div>
+                    </Col>
+                    <Col span={1}>
+                        <Tooltip title="领取通证积分">
+                            <Button
+                                shape="circle"
+                                icon={<DollarCircleOutlined/>}
+                                onClick={onClickGetIniToken}
+                            />
+                        </Tooltip>
+                    </Col>
+                    <Col span={11}>
+                        <div style={{color:'white'}}>
 
-                <div className='accountName'>
-                    <Tooltip title="连接钱包">
-                        <Button
-                            shape="circle"
-                            icon={<UserAddOutlined />}
-                            onClick={onClickConnectWallet}
-                        />
-                    </Tooltip>
-
-                    <div>
-                        当前用户：{account === '' ? '无用户连接' : account}
-                    </div>
-                </div>
-
-                <div className='accountToken'>
-                    <Tooltip title="领取通证积分">
-                        <Button
-                            shape="circle"
-                            icon={<DollarCircleOutlined />}
-                            onClick={onClickGetIniToken}
-                        />
-                    </Tooltip>
-
-                    <div>
-                        当前账户通证积分：{account === '' ? '无用户连接' : userInfo.balance}
-                    </div>
-
-
-
-                </div>
-
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to={``}>首页</Link>
-                        </li>
-                        <li>
-                            <Link to={`proposal`}>提案广场</Link>
-                        </li>
-                        <li>
-                            <Link to={`nft`}>我的NFT</Link>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            <div id="detail">
-                <Outlet />
-            </div>
+                            当前账户通证积分：{account === '' ? '无用户连接' : userInfo.balance}
+                        </div>
+                    </Col>
+                </Row>
 
 
-        </>
+            </Header>
+            <Content style={{ padding: '0 50px', marginTop: 64 }}>
+
+                <div className="site-layout-content">Content</div>
+            </Content>
+
+            <Footer style={{textAlign: 'center'}}>StudentSocietyDAO Created by ZJU-YHF </Footer>
+
+        </Layout>
+
     );
 }
