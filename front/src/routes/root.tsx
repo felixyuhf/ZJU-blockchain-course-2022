@@ -1,7 +1,7 @@
 import {Outlet} from "react-router-dom";
 import React, {useEffect, useState} from 'react';
 import {web3, StudentSocietyDAOContract, MyERC20Contract} from "../utils/contracts";
-import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, Table} from 'antd';
+import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, Table,Badge} from 'antd';
 
 import './root.css'
 
@@ -126,6 +126,7 @@ export default function Root() {
     //用户信息
     const [userInfo, setUserInfo] = useState({
         balance: 0,
+
     })
     //获取用户信息
     const getAllUser = async () => {
@@ -151,7 +152,6 @@ export default function Root() {
         }
     }, [account]);
 
-
     //提案相关
     const [proposalInfo, setProposalInfo] = useState([{
         index: 0,
@@ -159,7 +159,11 @@ export default function Root() {
         proposer: "",
         startTime: 0,
         endTime: 0,
+        StatusProposal:0,
     }])
+
+
+
     //获取提案信息
     const getAllProposalInfo = async () => {
         if (StudentSocietyDAOContract) {
@@ -169,12 +173,14 @@ export default function Root() {
                 const _proposalInfo = await Promise.all(__proposalIndex.map(async (index: number) => {
                     try {
                         const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index).call({from: account})
+                        console.log(_proposalInformation)
                         return {
                             index: index,
                             content: _proposalInformation[1],
                             proposer: _proposalInformation[0],
                             startTime: _proposalInformation[2],
                             endTime: _proposalInformation[3],
+                            StatusProposal: _proposalInformation[4],
                         }
 
                     } catch (error: any) {
@@ -282,7 +288,7 @@ export default function Root() {
                             />
                         </Tooltip>
                     </Col>
-                    <Col span={5}>
+                    <Col span={4}>
                         <div style={{color: 'white'}}>
                             当前账户通证积分：{account === '' ? '无用户连接' : userInfo.balance}
                         </div>
@@ -293,10 +299,39 @@ export default function Root() {
                             icon={<SmileOutlined/>}
                         />
                     </Col>
-                    <Col span={5}>
+                    <Col span={4}>
                         <div style={{color: 'white'}}>
 
                             当前账户NFT：{account === '' ? '无用户连接' : '待添加'}
+                        </div>
+                    </Col>
+                    <Col span={2}>
+                        <div >
+                            <Button
+                                size="large"
+                                type="primary"
+                                onClick={newProposal}
+                            >
+                                新建提案
+                            </Button>
+                            <Modal
+                                open={open}
+                                onCancel={handleCancel}
+                                onOk={handleOK}
+                                cancelText="取消"
+                                okText="提交"
+                                closable={false}
+                                title="新建提案"
+                            >
+                                <TextArea
+                                    rows={4} placeholder="提案内容"
+                                    {...register('ProposalContent')}//输出标题
+                                    value={values.ProposalContent}
+                                    onChange={(event) => handleChange({...values, ProposalContent: event.target.value})}
+                                />
+
+                            </Modal>
+
                         </div>
                     </Col>
                 </Row>
@@ -316,83 +351,59 @@ export default function Root() {
                 <Layout>
                     <Content style={{padding: '0 50px', marginTop: 64,marginLeft:200}}>
                         <Row>
-                            <Col span={20}>
-                                <Divider orientation="left">提案广场</Divider>
-                            </Col>
-                            <Col span={3}>
-                                <Button
-                                    size="large"
-                                    type="primary"
-                                    onClick={newProposal}
-                                >
-                                    新建提案
-                                </Button>
-                            </Col>
-                            <Modal
-                                open={open}
-                                onCancel={handleCancel}
-                                onOk={handleOK}
-                                cancelText="取消"
-                                okText="提交"
-                                closable={false}
-                                title="新建提案"
-                            >
-                                <TextArea
-                                    rows={4} placeholder="提案内容"
-                                    {...register('ProposalContent')}//输出标题
-                                    value={values.ProposalContent}
-                                    onChange={(event) => handleChange({...values, ProposalContent: event.target.value})}
-                                />
+                            <Divider orientation="left">提案广场</Divider>
 
-                            </Modal>
                         </Row>
                         <div>
                             {
                                 proposalInfo.length ?
                                     proposalInfo.map((itemproposalInfo) => (
                                         <div>
-                                            <Card bordered={false}>
-                                                <Row>
-                                                    <Col flex="auto">
-                                                        <ReconciliationOutlined />
-                                                        {itemproposalInfo.content}
-                                                    </Col>
-                                                    <Col flex="20px">
-                                                        <Tooltip title="赞成提案">
-                                                            <Button
-                                                                shape="circle"
-                                                                icon={<CheckCircleOutlined />}
-                                                                //onClick={onClickConnectWallet}
-                                                            />
-                                                        </Tooltip>
-                                                    </Col>
-                                                </Row>
+                                            <Badge.Ribbon
+                                                text =  {itemproposalInfo.StatusProposal == 0 ?  "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过":"提案未通过")}
+                                                color = {itemproposalInfo.StatusProposal == 0 ?  "blue" : (itemproposalInfo.StatusProposal == 1 ? "green":"red")}
+                                            >
+                                                <Card bordered={false} hoverable={true}>
+                                                    <Row>
+                                                        <Col flex="auto">
+                                                            <ReconciliationOutlined />
+                                                            {itemproposalInfo.content}
+                                                            <p></p>
+                                                        </Col>
+                                                        <Col flex="20px">
+                                                            <Tooltip title="赞成提案">
+                                                                <Button
+                                                                    shape="circle"
+                                                                    icon={<CheckCircleOutlined />}
+                                                                    //onClick={onClickConnectWallet}
+                                                                />
+                                                            </Tooltip>
+                                                        </Col>
+                                                    </Row>
 
-                                                <Row>
-                                                    <Col flex="auto">
-                                                        <UserOutlined />
+                                                    <Row>
+                                                        <Col flex="auto">
+                                                            <UserOutlined />
 
-                                                        {itemproposalInfo.proposer}
-                                                    </Col>
-                                                    <Col flex="120px">
-                                                        {moment(itemproposalInfo.startTime*1000).format("YYYY-MM-DD HH:mm:ss")}
-                                                    </Col>
-                                                    <Col flex="120px">
-                                                        {moment(itemproposalInfo.endTime*1000).format("YYYY-MM-DD HH:mm:ss")}
-                                                    </Col>
-                                                    <Col flex="20px">
-                                                        <Tooltip title="拒绝提案">
-                                                            <Button
-                                                                shape="circle"
-                                                                icon={<CloseCircleOutlined />}
-                                                                //onClick={onClickConnectWallet}
-                                                            />
-                                                        </Tooltip>
-                                                    </Col>
-                                                </Row>
+                                                            {itemproposalInfo.proposer}
+                                                        </Col>
+                                                        <Col flex="120px">{moment(itemproposalInfo.startTime*1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                        <Col flex="120px">{moment(itemproposalInfo.endTime*1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                        <Col flex="20px">
+                                                            <Tooltip title="拒绝提案">
+                                                                <Button
+                                                                    shape="circle"
+                                                                    icon={<CloseCircleOutlined />}
+                                                                    //onClick={onClickConnectWallet}
+                                                                />
+                                                            </Tooltip>
+                                                        </Col>
+                                                    </Row>
 
 
-                                            </Card>
+                                                </Card>
+                                            </Badge.Ribbon>
+
                                             <p></p>
                                         </div>
 

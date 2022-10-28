@@ -16,13 +16,9 @@ contract StudentSocietyDAO {
         string content;   // 内容
         uint256 startTime; // 开始时间
         uint256 endTime;   // 截止时间
-        Status StatusProposal; //提案状态
+        uint StatusProposal; //提案状态：0进行中，1通过，2拒绝
     }
-    enum Status{
-        isVoting,
-        isPassed,
-        isUnpassed
-    }
+
 
     //提案合集
     using Counters for Counters.Counter;
@@ -59,8 +55,8 @@ contract StudentSocietyDAO {
             proposer:msg.sender,
             content:ProposalContent,
             startTime:block.timestamp,
-            endTime:block.timestamp+7*24*60*60,
-            StatusProposal:Status.isVoting});
+            endTime:block.timestamp+2*24*60*60,
+            StatusProposal:0});
 
         _AllProposals.ProposalInfo[currentIndex] = NewProposal; // 添加一个提案
         _AllProposals.ProposalIndex.push(currentIndex); // 添加一个新id
@@ -72,14 +68,16 @@ contract StudentSocietyDAO {
     }
 
     // 获取提案信息
-    function getProposalInformation(uint index) public view returns (address, string memory, uint256, uint256) {
+    function getProposalInformation(uint index) public view returns (address, string memory, uint256, uint256, uint) {
 
         address proposer = _AllProposals.ProposalInfo[index].proposer ;  // 发起者
         string memory content = _AllProposals.ProposalInfo[index].content;   // 内容
         uint256 startTime = _AllProposals.ProposalInfo[index].startTime; // 开始时间
         uint256 endTime = _AllProposals.ProposalInfo[index].endTime;   // 截止时间
+        uint  status =_AllProposals.ProposalInfo[index].StatusProposal;
 
-        return (proposer, content, startTime, endTime);
+
+        return (proposer, content, startTime, endTime, status);
     }
 
 }
