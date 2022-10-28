@@ -76,3 +76,5 @@
 [Migrating from JavaScript](https://www.typescriptlang.org/docs/handbook/migrating-from-javascript.html)
 
 [React时间戳与日期格式转换](https://blog.csdn.net/weixin_39566210/article/details/118417477)
+
+[智能合约Stack Too Deep解决方法](https://www.jianshu.com/p/b3f7fdfce5f9)

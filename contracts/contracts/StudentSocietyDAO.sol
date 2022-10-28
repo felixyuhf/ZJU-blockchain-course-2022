@@ -17,9 +17,9 @@ contract StudentSocietyDAO {
         uint256 startTime; // 开始时间
         uint256 endTime;   // 截止时间
         uint StatusProposal; //提案状态：0进行中，1通过，2拒绝
+        uint numAgree;//同意票数
+        uint numDisagree;//拒绝票数
     }
-
-
     //提案合集
     using Counters for Counters.Counter;
     struct AllProposals {
@@ -28,9 +28,21 @@ contract StudentSocietyDAO {
         Counters.Counter ProposalCounter;
     }
     AllProposals private _AllProposals; // 存储所有提案的信息
-
-
     mapping(uint32 => Proposal) proposals; // A map from proposal index to proposal
+
+    //投票
+    struct Vote {
+        uint proposalIndex; //投票的提案编号
+        uint content; //投票内容 0未投票，1同意，2拒绝
+        address voterAddress; // 投票人地址
+    }
+    // 投票合集
+    struct AllVotes {
+        mapping(address=>mapping(uint=>Vote[])) VoteInfo;
+        address[] AllvoterAddress; // 存储所有用户的地址
+    }
+    AllVotes private _AllVotes; // 存储所有投票的信息
+
 
     //通证积分
     MyERC20 public UserToken;
@@ -55,8 +67,11 @@ contract StudentSocietyDAO {
             proposer:msg.sender,
             content:ProposalContent,
             startTime:block.timestamp,
-            endTime:block.timestamp+2*24*60*60,
-            StatusProposal:0});
+            endTime:block.timestamp+2*60,
+            StatusProposal:0,
+            numAgree:0,
+            numDisagree:0
+        });
 
         _AllProposals.ProposalInfo[currentIndex] = NewProposal; // 添加一个提案
         _AllProposals.ProposalIndex.push(currentIndex); // 添加一个新id
@@ -68,16 +83,39 @@ contract StudentSocietyDAO {
     }
 
     // 获取提案信息
-    function getProposalInformation(uint index) public view returns (address, string memory, uint256, uint256, uint) {
+    function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint,uint) {
+        uint  status = getProposalStatus(index,nowTime);
+        Proposal storage tmpproposal = _AllProposals.ProposalInfo[index];
 
-        address proposer = _AllProposals.ProposalInfo[index].proposer ;  // 发起者
-        string memory content = _AllProposals.ProposalInfo[index].content;   // 内容
-        uint256 startTime = _AllProposals.ProposalInfo[index].startTime; // 开始时间
-        uint256 endTime = _AllProposals.ProposalInfo[index].endTime;   // 截止时间
-        uint  status =_AllProposals.ProposalInfo[index].StatusProposal;
+        address proposer = tmpproposal.proposer ;  // 发起者
+        string memory content = tmpproposal.content;   // 内容
+        uint256 startTime = tmpproposal.startTime; // 开始时间
+        uint256 endTime = tmpproposal.endTime;   // 截止时间
+
+        uint  numAgree = tmpproposal.numAgree;
+        uint  numDisagree = tmpproposal.numDisagree;
 
 
-        return (proposer, content, startTime, endTime, status);
+
+        return (proposer, content, startTime, endTime, status,numAgree,numDisagree);
+    }
+    // 统计提案投票情况
+    function getProposalStatus(uint proposalIndex, uint256 nowTime) public view returns (uint) {
+        if (nowTime > _AllProposals.ProposalInfo[proposalIndex].endTime) {
+            if (_AllProposals.ProposalInfo[proposalIndex].numAgree > _AllProposals.ProposalInfo[proposalIndex].numDisagree) {return 1;}
+            else{return 2;}
+        }
+        else {return 0;}
     }
 
+    //投票
+    function addNewVote(uint content, uint proposalIndex ) public {
+
+        require(UserToken.balanceOf(msg.sender) >= 100, "You don't have enough token to vote");
+        UserToken.transferFrom(msg.sender, address(this), 100); // 委托转账给本合约
+
+        if (content == 1){_AllProposals.ProposalInfo[proposalIndex].numAgree++;}
+        else if (content == 2){_AllProposals.ProposalInfo[proposalIndex].numDisagree++;}
+
+    }
 }

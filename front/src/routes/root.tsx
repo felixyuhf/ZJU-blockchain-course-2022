@@ -1,7 +1,7 @@
 import {Outlet} from "react-router-dom";
 import React, {useEffect, useState} from 'react';
 import {web3, StudentSocietyDAOContract, MyERC20Contract} from "../utils/contracts";
-import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, Table,Badge} from 'antd';
+import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, Table, Badge} from 'antd';
 
 import './root.css'
 
@@ -11,7 +11,7 @@ import {
     DollarCircleOutlined,
     SmileOutlined,
     CheckCircleOutlined,
-    CloseCircleOutlined ,
+    CloseCircleOutlined,
     ReconciliationOutlined,
 } from '@ant-design/icons';
 import * as Yup from "yup";
@@ -159,9 +159,10 @@ export default function Root() {
         proposer: "",
         startTime: 0,
         endTime: 0,
-        StatusProposal:0,
+        StatusProposal: 0,
+        numAgree: 0,
+        numDisagree: 0
     }])
-
 
 
     //获取提案信息
@@ -172,7 +173,7 @@ export default function Root() {
                 const __proposalIndex = _proposalIndex.map((item: string) => +item)
                 const _proposalInfo = await Promise.all(__proposalIndex.map(async (index: number) => {
                     try {
-                        const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index).call({from: account})
+                        const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index,Date.parse(new Date().toString()) / 1000).call({from: account})
                         console.log(_proposalInformation)
                         return {
                             index: index,
@@ -181,6 +182,8 @@ export default function Root() {
                             startTime: _proposalInformation[2],
                             endTime: _proposalInformation[3],
                             StatusProposal: _proposalInformation[4],
+                            numAgree: _proposalInformation[5],
+                            numDisagree: _proposalInformation[6]
                         }
 
                     } catch (error: any) {
@@ -201,6 +204,8 @@ export default function Root() {
             getAllProposalInfo()
         }
     }, [account])
+
+
 
 
     //新建提案
@@ -224,7 +229,6 @@ export default function Root() {
                 await StudentSocietyDAOContract.methods.addNewProposal(values.ProposalContent).send({from: account})
                 getAllUser()
                 getAllProposalInfo()
-                alert('You add a new proposal.')
             } catch (error: any) {
                 alert(error)
             }
@@ -259,6 +263,27 @@ export default function Root() {
     } = useForm({
         resolver: yupResolver(validationSchema)
     });
+
+
+    // 投票
+    const handleVote = async (content, proposalIndex) => {
+        if (account === '') {
+            alert('You have not connected wallet yet.')
+            return
+        }
+        if (StudentSocietyDAOContract && MyERC20Contract) {
+            try {
+                await MyERC20Contract.methods.approve(StudentSocietyDAOContract.options.address, 100).send({from: account})
+                await StudentSocietyDAOContract.methods.addNewVote(content, proposalIndex).send({from: account})
+                getAllUser()
+                getAllProposalInfo()
+            } catch (error: any) {
+                alert(error)
+            }
+        } else {
+            alert('Contract not exists.')
+        }
+    }
 
 
     return (
@@ -306,7 +331,7 @@ export default function Root() {
                         </div>
                     </Col>
                     <Col span={2}>
-                        <div >
+                        <div>
                             <Button
                                 size="large"
                                 type="primary"
@@ -349,7 +374,7 @@ export default function Root() {
                     侧边栏
                 </Sider>
                 <Layout>
-                    <Content style={{padding: '0 50px', marginTop: 64,marginLeft:200}}>
+                    <Content style={{padding: '0 50px', marginTop: 64, marginLeft: 200}}>
                         <Row>
                             <Divider orientation="left">提案广场</Divider>
 
@@ -360,43 +385,55 @@ export default function Root() {
                                     proposalInfo.map((itemproposalInfo) => (
                                         <div>
                                             <Badge.Ribbon
-                                                text =  {itemproposalInfo.StatusProposal == 0 ?  "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过":"提案未通过")}
-                                                color = {itemproposalInfo.StatusProposal == 0 ?  "blue" : (itemproposalInfo.StatusProposal == 1 ? "green":"red")}
+                                                text={itemproposalInfo.StatusProposal == 0 ? "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过" : "提案未通过")}
+                                                color={itemproposalInfo.StatusProposal == 0 ? "blue" : (itemproposalInfo.StatusProposal == 1 ? "green" : "red")}
                                             >
                                                 <Card bordered={false} hoverable={true}>
                                                     <Row>
                                                         <Col flex="auto">
-                                                            <ReconciliationOutlined />
+                                                            <ReconciliationOutlined/>
                                                             {itemproposalInfo.content}
                                                             <p></p>
                                                         </Col>
-                                                        <Col flex="20px">
-                                                            <Tooltip title="赞成提案">
+                                                        <Col flex="30px">
+                                                            <Tooltip
+                                                                title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "赞成提案" : "投票已截止"}>
                                                                 <Button
                                                                     shape="circle"
-                                                                    icon={<CheckCircleOutlined />}
-                                                                    //onClick={onClickConnectWallet}
+                                                                    icon={<CheckCircleOutlined/>}
+                                                                    disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
+                                                                    onClick={() => handleVote(1, itemproposalInfo.index)}
+
+                                                                    //onClick={()=>console.log(Date.parse(new Date().toString())/1000)}
                                                                 />
+                                                                {itemproposalInfo.numAgree}
                                                             </Tooltip>
+
                                                         </Col>
                                                     </Row>
 
                                                     <Row>
                                                         <Col flex="auto">
-                                                            <UserOutlined />
+                                                            <UserOutlined/>
 
                                                             {itemproposalInfo.proposer}
                                                         </Col>
-                                                        <Col flex="120px">{moment(itemproposalInfo.startTime*1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
-                                                        <Col flex="120px">{moment(itemproposalInfo.endTime*1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
-                                                        <Col flex="20px">
-                                                            <Tooltip title="拒绝提案">
+                                                        <Col
+                                                            flex="120px">{moment(itemproposalInfo.startTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                        <Col
+                                                            flex="120px">{moment(itemproposalInfo.endTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                        <Col flex="30px">
+                                                            <Tooltip
+                                                                title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "拒绝提案" : "投票已截止"}>
                                                                 <Button
                                                                     shape="circle"
-                                                                    icon={<CloseCircleOutlined />}
-                                                                    //onClick={onClickConnectWallet}
+                                                                    icon={<CloseCircleOutlined/>}
+                                                                    disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
+                                                                    onClick={() => handleVote(2, itemproposalInfo.index)}
                                                                 />
+                                                                {itemproposalInfo.numDisagree}
                                                             </Tooltip>
+
                                                         </Col>
                                                     </Row>
 
