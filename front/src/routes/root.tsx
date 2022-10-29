@@ -1,7 +1,7 @@
 import {Outlet} from "react-router-dom";
 import React, {useEffect, useState} from 'react';
 import {web3, StudentSocietyDAOContract, MyERC20Contract} from "../utils/contracts";
-import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, Table, Badge} from 'antd';
+import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, message, Badge} from 'antd';
 
 import './root.css'
 
@@ -12,7 +12,7 @@ import {
     SmileOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
-    ReconciliationOutlined,
+    ReconciliationOutlined, FileSearchOutlined,
 } from '@ant-design/icons';
 import * as Yup from "yup";
 import {useForm} from "react-hook-form";
@@ -21,6 +21,7 @@ import moment from 'moment';
 
 const {Link} = Anchor;
 const {Header, Content, Footer, Sider} = Layout;
+const {Title} = Typography;
 
 const GanacheTestChainId = '0x539' // Ganache默认的ChainId = 0x539 = Hex(1337)
 // TODO change according to your configuration
@@ -36,12 +37,6 @@ const defaultInputValues = {
 export default function Root() {
 
     const [account, setAccount] = useState('')
-
-    const [accountBalance, setAccountBalance] = useState(0)
-    const [playAmount, setPlayAmount] = useState(0)
-    const [totalAmount, setTotalAmount] = useState(0)
-    const [playerNumber, setPlayerNumber] = useState(0)
-    const [managerAccount, setManagerAccount] = useState('')
 
     //账户相关
     useEffect(() => {
@@ -59,7 +54,6 @@ export default function Root() {
                 }
             }
         }
-
         initCheckAccounts()
     }, [])
     const onClickConnectWallet = async () => {
@@ -107,12 +101,11 @@ export default function Root() {
             alert('You have not connected wallet yet.')
             return
         }
-
         if (MyERC20Contract) {
             try {
                 await MyERC20Contract.methods.getIniToken().send({from: account})
                 getAllUser()
-                alert('You have claimed Token.')
+                message.success('成功领取首次通证积分')
             } catch (error: any) {
                 alert(error.message)
             }
@@ -136,6 +129,7 @@ export default function Root() {
                 const _userBalance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
 
 
+
                 const _userInfo = {balance: +_userBalance}
                 setUserInfo(_userInfo)
 
@@ -153,9 +147,6 @@ export default function Root() {
         }
     }, [account]);
 
-    //
-
-
     //提案相关
     const [proposalInfo, setProposalInfo] = useState([{
         index: 0,
@@ -168,8 +159,6 @@ export default function Root() {
         numDisagree: 0,
         TokenPaid: false
     }])
-
-
     //获取提案信息
     const getAllProposalInfo = async () => {
         if (StudentSocietyDAOContract) {
@@ -215,13 +204,8 @@ export default function Root() {
     //新建提案
     const [open, setOpen] = useState(false);
     const [values, setValues] = useState(defaultInputValues);
-    const newProposal = () => {
-        setOpen(true)
-        //console.log("open newProposal")
-    };
-    const handleCancel = () => {
-        setOpen(false)
-    };
+    const newProposal = () => {setOpen(true)};
+    const handleCancel = () => {setOpen(false)};
     const addNewProposal = async () => {
         if (account === '') {
             alert('You have not connected wallet yet.')
@@ -233,6 +217,7 @@ export default function Root() {
                 await StudentSocietyDAOContract.methods.addNewProposal(values.ProposalContent).send({from: account})
                 getAllUser()
                 getAllProposalInfo()
+                message.success('成功新建提案')
             } catch (error: any) {
                 alert(error)
             }
@@ -246,10 +231,7 @@ export default function Root() {
         addNewProposal()
     };
 
-    const handleChange = (value) => {
-        setValues(value)
-        console.log(value)
-    };
+    const handleChange = (value) => {setValues(value)};
     useEffect(() => {
         if (open) setValues(defaultInputValues);
     }, [open])//关闭之后重置输入
@@ -268,6 +250,7 @@ export default function Root() {
         resolver: yupResolver(validationSchema)
     });
 
+
     // 提案通过奖励
     const getProposalReward = async (proposalIndex) => {
         if(account === '') {
@@ -279,7 +262,7 @@ export default function Root() {
                 await StudentSocietyDAOContract.methods.getProposalReward(proposalIndex).send({from: account})
                 getAllUser()
                 getAllProposalInfo()
-                alert('You have successfully received the reward after your proposal is passed')
+                message.success('成功领取提案通过奖励')
             } catch (error: any) {
                 alert(error)
             }
@@ -302,6 +285,7 @@ export default function Root() {
                 await StudentSocietyDAOContract.methods.addNewVote(content, proposalIndex).send({from: account})
                 getAllUser()
                 getAllProposalInfo()
+                message.success('成功完成投票')
             } catch (error: any) {
                 alert(error)
             }
@@ -389,21 +373,22 @@ export default function Root() {
 
             </Header>
             <Layout>
-                <Sider width={200} className="site-layout-background" style={{
-                    marginTop: 64,
-                    position: 'fixed',
-                    backgroundColor: 'white',
-                    overflow: 'auto',
-                    height: '100vh'
-                }}>
-                    侧边栏
-                </Sider>
+                {/*<Sider width={200} className="site-layout-background" style={{*/}
+                {/*    marginTop: 64,*/}
+                {/*    position: 'fixed',*/}
+                {/*    backgroundColor: 'white',*/}
+                {/*    overflow: 'auto',*/}
+                {/*    height: '100vh'*/}
+                {/*}}>*/}
+                {/*    侧边栏*/}
+                {/*</Sider>*/}
                 <Layout>
-                    <Content style={{padding: '0 50px', marginTop: 64, marginLeft: 200}}>
-                        <Row>
-                            <Divider orientation="left">提案广场</Divider>
+                    <Header style={{marginTop: 64, backgroundColor:'#F0F2F5'}}>
 
-                        </Row>
+                        <Title level={3}>提案广场</Title>
+
+                    </Header>
+                    <Content style={{padding: '0 50px',overflow:'scroll'}} >
                         <div>
                             {
                                 proposalInfo.length ?
@@ -450,12 +435,10 @@ export default function Root() {
                                                                     </Col>
                                                                     <Col flex="70px">
                                                                         <Row>
-                                                                            <span
-                                                                                style={{color: 'green'}}>{itemproposalInfo.numAgree}人已赞成</span>
+                                                                            <span style={{color: 'green'}}>{itemproposalInfo.numAgree}人已赞成</span>
                                                                         </Row>
                                                                         <Row>
-                                                                            <span
-                                                                                style={{color: 'red'}}>{itemproposalInfo.numDisagree}人已拒绝</span>
+                                                                            <span style={{color: 'red'}}>{itemproposalInfo.numDisagree}人已拒绝</span>
                                                                         </Row>
                                                                     </Col>
                                                                 </Row>
@@ -557,6 +540,7 @@ export default function Root() {
 
                             }
                         </div>
+
 
 
                     </Content>

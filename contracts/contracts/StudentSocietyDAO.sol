@@ -88,19 +88,12 @@ contract StudentSocietyDAO {
     function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint[2] memory,bool) {
         uint  status = getProposalStatus(index,nowTime);
         Proposal storage tmpproposal = _AllProposals.ProposalInfo[index];
-
         address  proposer = tmpproposal.proposer ;  // 发起者
         string memory content = tmpproposal.content;   // 内容
         uint256 startTime = tmpproposal.startTime; // 开始时间
         uint256 endTime = tmpproposal.endTime;   // 截止时间
-
         uint[2] memory num = [tmpproposal.numAgree,tmpproposal.numDisagree];
-
-//        uint  numAgree = tmpproposal.numAgree;
-//        uint  numDisagree = tmpproposal.numDisagree;
         bool TokenPaid = tmpproposal.TokenPaid;
-
-
 
         return (proposer, content, startTime, endTime, status,num,TokenPaid);
     }
