@@ -268,6 +268,27 @@ export default function Root() {
         resolver: yupResolver(validationSchema)
     });
 
+    // 提案通过奖励
+    const getProposalReward = async (proposalIndex) => {
+        if(account === '') {
+            alert('You have not connected wallet yet.')
+            return
+        }
+        if (StudentSocietyDAOContract && MyERC20Contract) {
+            try {
+                await StudentSocietyDAOContract.methods.getProposalReward(proposalIndex).send({from: account})
+                getAllUser()
+                getAllProposalInfo()
+                alert('You have successfully received the reward after your proposal is passed')
+            } catch (error: any) {
+                alert(error)
+            }
+        } else {
+            alert('Contract not exists.')
+        }
+    }
+
+
 
     // 投票
     const handleVote = async (content, proposalIndex) => {
@@ -423,7 +444,7 @@ export default function Root() {
                                                                                 shape="circle"
                                                                                 icon={<DollarCircleOutlined/>}
                                                                                 disabled={itemproposalInfo.TokenPaid == true ? true : (itemproposalInfo.StatusProposal == 1 ? false : true)}
-                                                                                onClick={() => console.log(itemproposalInfo)}
+                                                                                onClick={()=>getProposalReward(itemproposalInfo.index)}
                                                                             />
                                                                         </Tooltip>
                                                                     </Col>
@@ -440,13 +461,7 @@ export default function Root() {
                                                                 </Row>
 
                                                             </Col>
-                                                            {/*<Col flex="100px">*/}
-                                                            {/*<Row>*/}
-                                                            {/*    <span style={{color: 'green'}}>{itemproposalInfo.numAgree}</span>:<span style={{color: 'red'}}>{itemproposalInfo.numDisagree}</span>*/}
-                                                            {/*</Row>*/}
 
-
-                                                            {/*</Col>*/}
                                                         </Row>
 
 
@@ -518,7 +533,7 @@ export default function Root() {
                                                                     </Col>
 
                                                                     <Col flex="70px">
-                                                                        {itemproposalInfo.numAgree}人已赞成
+                                                                        {itemproposalInfo.numDisagree}人已拒绝
                                                                     </Col>
                                                                 </Row>
 

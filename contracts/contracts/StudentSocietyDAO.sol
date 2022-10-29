@@ -113,6 +113,12 @@ contract StudentSocietyDAO {
         else {return 0;}
     }
 
+    // 提案通过奖励
+    function getProposalReward(uint proposalIndex) public {
+        _AllProposals.ProposalInfo[proposalIndex].TokenPaid = true;
+        UserToken.transfer(msg.sender,(_AllProposals.ProposalInfo[proposalIndex].numDisagree+_AllProposals.ProposalInfo[proposalIndex].numAgree)*100 +1000 );
+    }
+
     //投票
     function addNewVote(uint content, uint proposalIndex ) public {
 
