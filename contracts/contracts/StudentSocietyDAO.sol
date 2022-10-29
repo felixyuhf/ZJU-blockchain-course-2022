@@ -19,6 +19,7 @@ contract StudentSocietyDAO {
         uint StatusProposal; //提案状态：0进行中，1通过，2拒绝
         uint numAgree;//同意票数
         uint numDisagree;//拒绝票数
+        bool TokenPaid; //是否支付提案通过后的奖励
     }
     //提案合集
     using Counters for Counters.Counter;
@@ -70,7 +71,8 @@ contract StudentSocietyDAO {
             endTime:block.timestamp+2*60,
             StatusProposal:0,
             numAgree:0,
-            numDisagree:0
+            numDisagree:0,
+            TokenPaid:false
         });
 
         _AllProposals.ProposalInfo[currentIndex] = NewProposal; // 添加一个提案
@@ -83,21 +85,24 @@ contract StudentSocietyDAO {
     }
 
     // 获取提案信息
-    function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint,uint) {
+    function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint[2] memory,bool) {
         uint  status = getProposalStatus(index,nowTime);
         Proposal storage tmpproposal = _AllProposals.ProposalInfo[index];
 
-        address proposer = tmpproposal.proposer ;  // 发起者
+        address  proposer = tmpproposal.proposer ;  // 发起者
         string memory content = tmpproposal.content;   // 内容
         uint256 startTime = tmpproposal.startTime; // 开始时间
         uint256 endTime = tmpproposal.endTime;   // 截止时间
 
-        uint  numAgree = tmpproposal.numAgree;
-        uint  numDisagree = tmpproposal.numDisagree;
+        uint[2] memory num = [tmpproposal.numAgree,tmpproposal.numDisagree];
+
+//        uint  numAgree = tmpproposal.numAgree;
+//        uint  numDisagree = tmpproposal.numDisagree;
+        bool TokenPaid = tmpproposal.TokenPaid;
 
 
 
-        return (proposer, content, startTime, endTime, status,numAgree,numDisagree);
+        return (proposer, content, startTime, endTime, status,num,TokenPaid);
     }
     // 统计提案投票情况
     function getProposalStatus(uint proposalIndex, uint256 nowTime) public view returns (uint) {

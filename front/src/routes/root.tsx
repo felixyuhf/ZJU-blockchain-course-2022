@@ -127,6 +127,7 @@ export default function Root() {
     const [userInfo, setUserInfo] = useState({
         balance: 0,
 
+
     })
     //获取用户信息
     const getAllUser = async () => {
@@ -152,6 +153,9 @@ export default function Root() {
         }
     }, [account]);
 
+    //
+
+
     //提案相关
     const [proposalInfo, setProposalInfo] = useState([{
         index: 0,
@@ -161,7 +165,8 @@ export default function Root() {
         endTime: 0,
         StatusProposal: 0,
         numAgree: 0,
-        numDisagree: 0
+        numDisagree: 0,
+        TokenPaid: false
     }])
 
 
@@ -173,7 +178,7 @@ export default function Root() {
                 const __proposalIndex = _proposalIndex.map((item: string) => +item)
                 const _proposalInfo = await Promise.all(__proposalIndex.map(async (index: number) => {
                     try {
-                        const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index,Date.parse(new Date().toString()) / 1000).call({from: account})
+                        const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index, Date.parse(new Date().toString()) / 1000).call({from: account})
                         console.log(_proposalInformation)
                         return {
                             index: index,
@@ -182,8 +187,9 @@ export default function Root() {
                             startTime: _proposalInformation[2],
                             endTime: _proposalInformation[3],
                             StatusProposal: _proposalInformation[4],
-                            numAgree: _proposalInformation[5],
-                            numDisagree: _proposalInformation[6]
+                            numAgree: _proposalInformation[5][0],
+                            numDisagree: _proposalInformation[5][1],
+                            TokenPaid: _proposalInformation[6]
                         }
 
                     } catch (error: any) {
@@ -204,8 +210,6 @@ export default function Root() {
             getAllProposalInfo()
         }
     }, [account])
-
-
 
 
     //新建提案
@@ -383,63 +387,151 @@ export default function Root() {
                             {
                                 proposalInfo.length ?
                                     proposalInfo.map((itemproposalInfo) => (
-                                        <div>
-                                            <Badge.Ribbon
-                                                text={itemproposalInfo.StatusProposal == 0 ? "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过" : "提案未通过")}
-                                                color={itemproposalInfo.StatusProposal == 0 ? "blue" : (itemproposalInfo.StatusProposal == 1 ? "green" : "red")}
-                                            >
-                                                <Card bordered={false} hoverable={true}>
-                                                    <Row>
-                                                        <Col flex="auto">
-                                                            <ReconciliationOutlined/>
-                                                            {itemproposalInfo.content}
-                                                            <p></p>
-                                                        </Col>
-                                                        <Col flex="30px">
-                                                            <Tooltip
-                                                                title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "赞成提案" : "投票已截止"}>
-                                                                <Button
-                                                                    shape="circle"
-                                                                    icon={<CheckCircleOutlined/>}
-                                                                    disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
-                                                                    onClick={() => handleVote(1, itemproposalInfo.index)}
+                                        <div style={{borderColor: "blue"}}>
+                                            {itemproposalInfo.proposer == account ?
+                                                <Badge.Ribbon
+                                                    text={itemproposalInfo.StatusProposal == 0 ? "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过" : "提案未通过")}
+                                                    color={itemproposalInfo.StatusProposal == 0 ? "blue" : (itemproposalInfo.StatusProposal == 1 ? "green" : "red")}
+                                                >
+                                                    <Card hoverable={true} style={{borderColor: "hwb(205 6% 9%)"}}>
+                                                        <Row>
+                                                            <Col flex="auto">
+                                                                <Row>
+                                                                    <Col flex="auto">
+                                                                        <ReconciliationOutlined/>
+                                                                        {itemproposalInfo.content}
+                                                                        <p></p>
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col flex="auto" style={{color: "hwb(205 6% 9%)"}}>
+                                                                        <UserOutlined/>
+                                                                        我的提案
+                                                                    </Col>
+                                                                </Row>
+                                                            </Col>
+                                                            <Col
+                                                                flex="120px">{moment(itemproposalInfo.startTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                            <Col
+                                                                flex="120px">{moment(itemproposalInfo.endTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                            <Col flex="115px">
+                                                                <Row>
+                                                                    <Col flex="30px">
+                                                                        <Tooltip
+                                                                            title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "正在投票中" : (itemproposalInfo.TokenPaid == true ? "奖励已领取" : "领取奖励")}>
+                                                                            <Button
+                                                                                shape="circle"
+                                                                                icon={<DollarCircleOutlined/>}
+                                                                                disabled={itemproposalInfo.TokenPaid == true ? true : (itemproposalInfo.StatusProposal == 1 ? false : true)}
+                                                                                onClick={() => console.log(itemproposalInfo)}
+                                                                            />
+                                                                        </Tooltip>
+                                                                    </Col>
+                                                                    <Col flex="70px">
+                                                                        <Row>
+                                                                            <span
+                                                                                style={{color: 'green'}}>{itemproposalInfo.numAgree}人已赞成</span>
+                                                                        </Row>
+                                                                        <Row>
+                                                                            <span
+                                                                                style={{color: 'red'}}>{itemproposalInfo.numDisagree}人已拒绝</span>
+                                                                        </Row>
+                                                                    </Col>
+                                                                </Row>
 
-                                                                    //onClick={()=>console.log(Date.parse(new Date().toString())/1000)}
-                                                                />
-                                                                {itemproposalInfo.numAgree}
-                                                            </Tooltip>
-
-                                                        </Col>
-                                                    </Row>
-
-                                                    <Row>
-                                                        <Col flex="auto">
-                                                            <UserOutlined/>
-
-                                                            {itemproposalInfo.proposer}
-                                                        </Col>
-                                                        <Col
-                                                            flex="120px">{moment(itemproposalInfo.startTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
-                                                        <Col
-                                                            flex="120px">{moment(itemproposalInfo.endTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
-                                                        <Col flex="30px">
-                                                            <Tooltip
-                                                                title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "拒绝提案" : "投票已截止"}>
-                                                                <Button
-                                                                    shape="circle"
-                                                                    icon={<CloseCircleOutlined/>}
-                                                                    disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
-                                                                    onClick={() => handleVote(2, itemproposalInfo.index)}
-                                                                />
-                                                                {itemproposalInfo.numDisagree}
-                                                            </Tooltip>
-
-                                                        </Col>
-                                                    </Row>
+                                                            </Col>
+                                                            {/*<Col flex="100px">*/}
+                                                            {/*<Row>*/}
+                                                            {/*    <span style={{color: 'green'}}>{itemproposalInfo.numAgree}</span>:<span style={{color: 'red'}}>{itemproposalInfo.numDisagree}</span>*/}
+                                                            {/*</Row>*/}
 
 
-                                                </Card>
-                                            </Badge.Ribbon>
+                                                            {/*</Col>*/}
+                                                        </Row>
+
+
+                                                    </Card>
+                                                </Badge.Ribbon>
+
+                                                :
+
+                                                <Badge.Ribbon
+                                                    text={itemproposalInfo.StatusProposal == 0 ? "正在投票中" : (itemproposalInfo.StatusProposal == 1 ? "提案已通过" : "提案未通过")}
+                                                    color={itemproposalInfo.StatusProposal == 0 ? "blue" : (itemproposalInfo.StatusProposal == 1 ? "green" : "red")}
+                                                >
+                                                    <Card hoverable={true}>
+                                                        <Row>
+                                                            <Col flex="auto">
+                                                                <Row>
+                                                                    <Col flex="auto">
+                                                                        <ReconciliationOutlined/>
+                                                                        {itemproposalInfo.content}
+                                                                        <p></p>
+                                                                    </Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col flex="auto">
+                                                                        <UserOutlined/>
+                                                                        {itemproposalInfo.proposer}
+                                                                    </Col>
+                                                                </Row>
+
+                                                            </Col>
+                                                            <Col
+                                                                flex="120px">{moment(itemproposalInfo.startTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                            <Col
+                                                                flex="120px">{moment(itemproposalInfo.endTime * 1000).format("YYYY-MM-DD HH:mm:ss")}</Col>
+                                                            <Col flex="115px">
+                                                                <Row>
+                                                                    <Col flex="30px">
+                                                                        <Tooltip
+                                                                            title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "赞成提案" : "投票已截止"}>
+                                                                            <Button
+                                                                                shape="circle"
+                                                                                icon={<CheckCircleOutlined/>}
+                                                                                disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
+                                                                                onClick={() => handleVote(1, itemproposalInfo.index)}
+
+                                                                                //onClick={()=>console.log(Date.parse(new Date().toString())/1000)}
+                                                                            />
+
+                                                                        </Tooltip>
+                                                                    </Col>
+                                                                    <Col flex="70px">
+                                                                        {itemproposalInfo.numAgree}人已赞成
+                                                                    </Col>
+
+                                                                </Row>
+
+                                                                <Row>
+                                                                    <Col flex="30px">
+                                                                        <Tooltip
+                                                                            title={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? "拒绝提案" : "投票已截止"}>
+                                                                            <Button
+                                                                                shape="circle"
+                                                                                icon={<CloseCircleOutlined/>}
+                                                                                disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
+                                                                                onClick={() => handleVote(2, itemproposalInfo.index)}
+                                                                            />
+
+                                                                        </Tooltip>
+                                                                    </Col>
+
+                                                                    <Col flex="70px">
+                                                                        {itemproposalInfo.numAgree}人已赞成
+                                                                    </Col>
+                                                                </Row>
+
+
+                                                            </Col>
+                                                        </Row>
+
+
+                                                    </Card>
+                                                </Badge.Ribbon>
+
+                                            }
+
 
                                             <p></p>
                                         </div>
