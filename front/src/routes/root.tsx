@@ -12,7 +12,8 @@ import {
     SmileOutlined,
     CheckCircleOutlined,
     CloseCircleOutlined,
-    ReconciliationOutlined, FileSearchOutlined,
+    ReconciliationOutlined,
+    StarOutlined
 } from '@ant-design/icons';
 import * as Yup from "yup";
 import {useForm} from "react-hook-form";
@@ -119,18 +120,17 @@ export default function Root() {
     //用户信息
     const [userInfo, setUserInfo] = useState({
         balance: 0,
-
+        //numPassedProposal:0
 
     })
     //获取用户信息
     const getAllUser = async () => {
         if (StudentSocietyDAOContract && MyERC20Contract) {
             try {
-                const _userBalance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
+                const _Balance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
 
 
-
-                const _userInfo = {balance: +_userBalance}
+                const _userInfo = {balance: +_Balance}
                 setUserInfo(_userInfo)
 
             } catch (error: any) {
@@ -157,7 +157,8 @@ export default function Root() {
         StatusProposal: 0,
         numAgree: 0,
         numDisagree: 0,
-        TokenPaid: false
+        TokenPaid: false,
+        TokenRecieved:false
     }])
     //获取提案信息
     const getAllProposalInfo = async () => {
@@ -178,7 +179,8 @@ export default function Root() {
                             StatusProposal: _proposalInformation[4],
                             numAgree: _proposalInformation[5][0],
                             numDisagree: _proposalInformation[5][1],
-                            TokenPaid: _proposalInformation[6]
+                            TokenPaid: _proposalInformation[6][0],
+                            TokenRecieved:_proposalInformation[6][1]
                         }
 
                     } catch (error: any) {
@@ -260,6 +262,7 @@ export default function Root() {
         if (StudentSocietyDAOContract && MyERC20Contract) {
             try {
                 await StudentSocietyDAOContract.methods.getProposalReward(proposalIndex).send({from: account})
+
                 getAllUser()
                 getAllProposalInfo()
                 message.success('成功领取提案通过奖励')
@@ -335,8 +338,8 @@ export default function Root() {
                     </Col>
                     <Col span={4}>
                         <div style={{color: 'white'}}>
-
                             当前账户NFT：{account === '' ? '无用户连接' : '待添加'}
+                            {/*当前账户NFT：<StarOutlined spin={true}/>*/}
                         </div>
                     </Col>
                     <Col span={2}>

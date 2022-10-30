@@ -4,10 +4,12 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./MyERC20.sol";
+import "./MyERC721.sol";
 
 contract StudentSocietyDAO {
     // use a event if you want
     event ProposalInitiated(uint32 proposalIndex);
+
 
     //提案
     struct Proposal {
@@ -20,6 +22,7 @@ contract StudentSocietyDAO {
         uint numAgree;//同意票数
         uint numDisagree;//拒绝票数
         bool TokenPaid; //是否支付提案通过后的奖励
+        bool TokenRecieved;
     }
     //提案合集
     using Counters for Counters.Counter;
@@ -31,34 +34,23 @@ contract StudentSocietyDAO {
     AllProposals private _AllProposals; // 存储所有提案的信息
     mapping(uint32 => Proposal) proposals; // A map from proposal index to proposal
 
-    //投票
-    struct Vote {
-        uint proposalIndex; //投票的提案编号
-        uint content; //投票内容 0未投票，1同意，2拒绝
-        address voterAddress; // 投票人地址
-    }
-    // 投票合集
-    struct AllVotes {
-        mapping(address=>mapping(uint=>Vote[])) VoteInfo;
-        address[] AllvoterAddress; // 存储所有用户的地址
-    }
-    AllVotes private _AllVotes; // 存储所有投票的信息
-
 
     //通证积分
     MyERC20 public UserToken;
+    //NFT
+    MyERC721 public UserNFT;
 
 
 
     constructor() {
         // maybe you need a constructor
         UserToken = new MyERC20("UserToken","UT");
+        UserNFT = new MyERC721("UserNFT","UN");
 
     }
     //新建提案
     function addNewProposal(string calldata ProposalContent) public {
         require(UserToken.balanceOf(msg.sender) >= 1000, "You don't have enough token to initiate a proposal");//确认积分足够发起提案
-        //require(TP.allowance(msg.sender, address(this)) >= _proposals.tpConsumedByProposal, "DSOMW don't have allowance over your TP. Please authorize DSOMW.");
         UserToken.transferFrom(msg.sender, address(this), 1000); //委托转账给本合约
 
         uint currentIndex = _AllProposals.ProposalCounter.current(); // 获取当前提案计数
@@ -72,7 +64,8 @@ contract StudentSocietyDAO {
             StatusProposal:0,
             numAgree:0,
             numDisagree:0,
-            TokenPaid:false
+            TokenPaid:false,
+            TokenRecieved:false
         });
 
         _AllProposals.ProposalInfo[currentIndex] = NewProposal; // 添加一个提案
@@ -85,7 +78,7 @@ contract StudentSocietyDAO {
     }
 
     // 获取提案信息
-    function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint[2] memory,bool) {
+    function getProposalInformation(uint index, uint256 nowTime) public view returns (address, string memory, uint256, uint256, uint,uint[2] memory,bool[2] memory) {
         uint  status = getProposalStatus(index,nowTime);
         Proposal storage tmpproposal = _AllProposals.ProposalInfo[index];
         address  proposer = tmpproposal.proposer ;  // 发起者
@@ -93,9 +86,9 @@ contract StudentSocietyDAO {
         uint256 startTime = tmpproposal.startTime; // 开始时间
         uint256 endTime = tmpproposal.endTime;   // 截止时间
         uint[2] memory num = [tmpproposal.numAgree,tmpproposal.numDisagree];
-        bool TokenPaid = tmpproposal.TokenPaid;
+        bool[2] memory Token = [tmpproposal.TokenPaid,tmpproposal.TokenRecieved];
 
-        return (proposer, content, startTime, endTime, status,num,TokenPaid);
+        return (proposer, content, startTime, endTime, status,num,Token);
     }
     // 统计提案投票情况
     function getProposalStatus(uint proposalIndex, uint256 nowTime) public view returns (uint) {
