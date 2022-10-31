@@ -10,6 +10,8 @@ async function main() {
   //ERC20部署地址
   const erc20address = await studentSocietyDAO.UserToken();
   console.log(`erc20 deployed to ${erc20address}`);
+  const erc721address = await studentSocietyDAO.UserNFT();
+  console.log(`erc721 deployed to ${erc721address}`);
 
 }
 

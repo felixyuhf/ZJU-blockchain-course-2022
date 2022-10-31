@@ -103,6 +103,7 @@ contract StudentSocietyDAO {
     function getProposalReward(uint proposalIndex) public {
         _AllProposals.ProposalInfo[proposalIndex].TokenPaid = true;
         UserToken.transfer(msg.sender,(_AllProposals.ProposalInfo[proposalIndex].numDisagree+_AllProposals.ProposalInfo[proposalIndex].numAgree)*100 +1000 );
+        //_AllUserNFT.UserNFTInfo[msg.sender].numPassedProposal =
     }
 
     //投票

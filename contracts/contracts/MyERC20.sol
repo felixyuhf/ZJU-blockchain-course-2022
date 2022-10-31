@@ -16,6 +16,8 @@ contract MyERC20 is ERC20 {
         require(claimedTokenUserList[msg.sender] == false, "You have already received the token");
         _mint(msg.sender, 10000); //给msg.sender发10000钱
         claimedTokenUserList[msg.sender] = true;
+
+
     }
 
 }

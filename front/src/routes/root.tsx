@@ -1,6 +1,6 @@
 import {Outlet} from "react-router-dom";
 import React, {useEffect, useState} from 'react';
-import {web3, StudentSocietyDAOContract, MyERC20Contract} from "../utils/contracts";
+import {web3, StudentSocietyDAOContract, MyERC20Contract , MyERC721Contract} from "../utils/contracts";
 import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, message, Badge} from 'antd';
 
 import './root.css'
@@ -102,9 +102,10 @@ export default function Root() {
             alert('You have not connected wallet yet.')
             return
         }
-        if (MyERC20Contract) {
+        if (MyERC20Contract && MyERC721Contract) {
             try {
                 await MyERC20Contract.methods.getIniToken().send({from: account})
+                await MyERC721Contract.methods.InitUserNFT().call({from: account})
                 getAllUser()
                 message.success('成功领取首次通证积分')
             } catch (error: any) {
@@ -120,18 +121,30 @@ export default function Root() {
     //用户信息
     const [userInfo, setUserInfo] = useState({
         balance: 0,
-        //numPassedProposal:0
-
+        numPassedProposal:0,
+        getNFT:false,
+        NFTId:0,
+        NFTURI:"None"
     })
     //获取用户信息
     const getAllUser = async () => {
-        if (StudentSocietyDAOContract && MyERC20Contract) {
+        if (StudentSocietyDAOContract && MyERC20Contract && MyERC721Contract) {
             try {
                 const _Balance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
+                const _UserNFT = await MyERC721Contract.methods.getUserNFT().call({from: account})
+                //console.log(_UserNFT)
 
-
-                const _userInfo = {balance: +_Balance}
+                const _userInfo = {balance: +_Balance,
+                    numPassedProposal:_UserNFT[0],
+                    getNFT:_UserNFT[1],
+                    NFTId:_UserNFT[2],
+                    NFTURI:_UserNFT[3]
+                }
                 setUserInfo(_userInfo)
+                console.log(_userInfo)
+                if(_userInfo.numPassedProposal >= 3 && _userInfo.getNFT == false){
+                    message.info('已成功提案并通过3次，可领取NFT奖励')
+                }
 
             } catch (error: any) {
                 alert(error.message)
@@ -262,10 +275,34 @@ export default function Root() {
         if (StudentSocietyDAOContract && MyERC20Contract) {
             try {
                 await StudentSocietyDAOContract.methods.getProposalReward(proposalIndex).send({from: account})
+                console.log(userInfo.numPassedProposal)
+                await MyERC721Contract.methods.addNumPassedProposal().send({from: account})
 
                 getAllUser()
                 getAllProposalInfo()
                 message.success('成功领取提案通过奖励')
+            } catch (error: any) {
+                alert(error)
+            }
+
+
+        } else {
+            alert('Contract not exists.')
+        }
+    }
+
+    // 领取NFT奖励
+    const getNFT = async () => {
+        if(account === '') {
+            alert('You have not connected wallet yet.')
+            return
+        }
+        if (StudentSocietyDAOContract && MyERC721Contract) {
+            try {
+                await MyERC721Contract.methods.awardItem(account,"提案能手").send({from: account})
+                getAllUser()
+                getAllProposalInfo()
+                alert('You have successfully received the NFT after your proposal has been passed three times')
             } catch (error: any) {
                 alert(error)
             }
@@ -331,15 +368,21 @@ export default function Root() {
                         </div>
                     </Col>
                     <Col span={1}>
-                        <Button
-                            shape="circle"
-                            icon={<SmileOutlined/>}
-                        />
+                        <Tooltip title="领取NFT奖励">
+                            <Button
+                                shape="circle"
+                                icon={<SmileOutlined/>}
+                                disabled={userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false ? false : true) : true}
+                                onClick={()=>getNFT()}
+                            />
+                        </Tooltip>
+
                     </Col>
                     <Col span={4}>
                         <div style={{color: 'white'}}>
-                            当前账户NFT：{account === '' ? '无用户连接' : '待添加'}
-                            {/*当前账户NFT：<StarOutlined spin={true}/>*/}
+                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false? '可领取NFT奖励' : '已领取NFT奖励' ) :'NFT待添加'}
+                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false? '' : <StarOutlined spin={true}/>) :''}
+
                         </div>
                     </Col>
                     <Col span={2}>
