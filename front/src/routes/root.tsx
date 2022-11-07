@@ -1,10 +1,8 @@
-import {Outlet} from "react-router-dom";
 import React, {useEffect, useState} from 'react';
-import {web3, StudentSocietyDAOContract, MyERC20Contract , MyERC721Contract} from "../utils/contracts";
+import {web3, StudentSocietyDAOContract, MyERC20Contract, MyERC721Contract} from "../utils/contracts";
 import {Layout, Button, Tooltip, Col, Row, Divider, Anchor, Typography, Card, Input, Modal, message, Badge} from 'antd';
 
 import './root.css'
-
 import {
     UserOutlined,
     UserAddOutlined,
@@ -20,7 +18,7 @@ import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import moment from 'moment';
 
-const {Link} = Anchor;
+
 const {Header, Content, Footer, Sider} = Layout;
 const {Title} = Typography;
 
@@ -121,10 +119,10 @@ export default function Root() {
     //用户信息
     const [userInfo, setUserInfo] = useState({
         balance: 0,
-        numPassedProposal:0,
-        getNFT:false,
-        NFTId:0,
-        NFTURI:"None"
+        numPassedProposal: 0,
+        getNFT: false,
+        NFTId: 0,
+        NFTURI: "None"
     })
     //获取用户信息
     const getAllUser = async () => {
@@ -133,16 +131,16 @@ export default function Root() {
                 const _Balance = await MyERC20Contract.methods.balanceOf(account).call({from: account})
                 const _UserNFT = await MyERC721Contract.methods.getUserNFT().call({from: account})
                 //console.log(_UserNFT)
-
-                const _userInfo = {balance: +_Balance,
-                    numPassedProposal:_UserNFT[0],
-                    getNFT:_UserNFT[1],
-                    NFTId:_UserNFT[2],
-                    NFTURI:_UserNFT[3]
+                const _userInfo = {
+                    balance: +_Balance,
+                    numPassedProposal: _UserNFT[0],
+                    getNFT: _UserNFT[1],
+                    NFTId: _UserNFT[2],
+                    NFTURI: _UserNFT[3]
                 }
                 setUserInfo(_userInfo)
                 console.log(_userInfo)
-                if(_userInfo.numPassedProposal >= 3 && _userInfo.getNFT == false){
+                if (_userInfo.numPassedProposal >= 3 && _userInfo.getNFT == false) {
                     message.info('已成功提案并通过3次，可领取NFT奖励')
                 }
 
@@ -171,7 +169,7 @@ export default function Root() {
         numAgree: 0,
         numDisagree: 0,
         TokenPaid: false,
-        TokenRecieved:false
+        TokenRecieved: false
     }])
     //获取提案信息
     const getAllProposalInfo = async () => {
@@ -182,7 +180,7 @@ export default function Root() {
                 const _proposalInfo = await Promise.all(__proposalIndex.map(async (index: number) => {
                     try {
                         const _proposalInformation = await StudentSocietyDAOContract.methods.getProposalInformation(index, Date.parse(new Date().toString()) / 1000).call({from: account})
-                        console.log(_proposalInformation)
+                        //console.log(_proposalInformation)
                         return {
                             index: index,
                             content: _proposalInformation[1],
@@ -193,14 +191,14 @@ export default function Root() {
                             numAgree: _proposalInformation[5][0],
                             numDisagree: _proposalInformation[5][1],
                             TokenPaid: _proposalInformation[6][0],
-                            TokenRecieved:_proposalInformation[6][1]
+                            TokenRecieved: _proposalInformation[6][1]
                         }
 
                     } catch (error: any) {
                         alert(error)
                     }
                 }))
-                console.log(_proposalInfo)
+                //console.log(_proposalInfo)
                 setProposalInfo(_proposalInfo)
             } catch (error: any) {
                 alert(error)
@@ -219,8 +217,12 @@ export default function Root() {
     //新建提案
     const [open, setOpen] = useState(false);
     const [values, setValues] = useState(defaultInputValues);
-    const newProposal = () => {setOpen(true)};
-    const handleCancel = () => {setOpen(false)};
+    const newProposal = () => {
+        setOpen(true)
+    };
+    const handleCancel = () => {
+        setOpen(false)
+    };
     const addNewProposal = async () => {
         if (account === '') {
             alert('You have not connected wallet yet.')
@@ -246,7 +248,9 @@ export default function Root() {
         addNewProposal()
     };
 
-    const handleChange = (value) => {setValues(value)};
+    const handleChange = (value) => {
+        setValues(value)
+    };
     useEffect(() => {
         if (open) setValues(defaultInputValues);
     }, [open])//关闭之后重置输入
@@ -268,7 +272,7 @@ export default function Root() {
 
     // 提案通过奖励
     const getProposalReward = async (proposalIndex) => {
-        if(account === '') {
+        if (account === '') {
             alert('You have not connected wallet yet.')
             return
         }
@@ -284,8 +288,6 @@ export default function Root() {
             } catch (error: any) {
                 alert(error)
             }
-
-
         } else {
             alert('Contract not exists.')
         }
@@ -293,13 +295,13 @@ export default function Root() {
 
     // 领取NFT奖励
     const getNFT = async () => {
-        if(account === '') {
+        if (account === '') {
             alert('You have not connected wallet yet.')
             return
         }
         if (StudentSocietyDAOContract && MyERC721Contract) {
             try {
-                await MyERC721Contract.methods.awardItem(account,"提案能手").send({from: account})
+                await MyERC721Contract.methods.awardItem(account, "提案能手").send({from: account})
                 getAllUser()
                 getAllProposalInfo()
                 alert('You have successfully received the NFT after your proposal has been passed three times')
@@ -310,7 +312,6 @@ export default function Root() {
             alert('Contract not exists.')
         }
     }
-
 
 
     // 投票
@@ -333,7 +334,6 @@ export default function Root() {
             alert('Contract not exists.')
         }
     }
-
 
     return (
         <Layout>
@@ -373,15 +373,16 @@ export default function Root() {
                                 shape="circle"
                                 icon={<SmileOutlined/>}
                                 disabled={userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false ? false : true) : true}
-                                onClick={()=>getNFT()}
+                                onClick={() => getNFT()}
                             />
                         </Tooltip>
 
                     </Col>
                     <Col span={4}>
                         <div style={{color: 'white'}}>
-                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false? '可领取NFT奖励' : '已领取NFT奖励' ) :'NFT待添加'}
-                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false? '' : <StarOutlined spin={true}/>) :''}
+                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false ? '可领取NFT奖励' : '已领取NFT奖励') : 'NFT待添加'}
+                            {userInfo.numPassedProposal >= 3 ? (userInfo.getNFT == false ? '' :
+                                <StarOutlined spin={true}/>) : ''}
 
                         </div>
                     </Col>
@@ -415,29 +416,18 @@ export default function Root() {
                         </div>
                     </Col>
                 </Row>
-
-
             </Header>
             <Layout>
-                {/*<Sider width={200} className="site-layout-background" style={{*/}
-                {/*    marginTop: 64,*/}
-                {/*    position: 'fixed',*/}
-                {/*    backgroundColor: 'white',*/}
-                {/*    overflow: 'auto',*/}
-                {/*    height: '100vh'*/}
-                {/*}}>*/}
-                {/*    侧边栏*/}
-                {/*</Sider>*/}
                 <Layout>
-                    <Header style={{marginTop: 64, backgroundColor:'#F0F2F5'}}>
+                    <Header style={{marginTop: 64, backgroundColor: '#F0F2F5'}}>
 
                         <Title level={3}>提案广场</Title>
 
                     </Header>
-                    <Content style={{padding: '0 50px',overflow:'scroll'}} >
+                    <Content style={{padding: '0 50px', overflow: 'scroll'}}>
                         <div>
                             {
-                                proposalInfo.length ?
+                                (proposalInfo.length && account != '')?
                                     proposalInfo.map((itemproposalInfo) => (
                                         <div style={{borderColor: "blue"}}>
                                             {itemproposalInfo.proposer == account ?
@@ -475,25 +465,23 @@ export default function Root() {
                                                                                 shape="circle"
                                                                                 icon={<DollarCircleOutlined/>}
                                                                                 disabled={itemproposalInfo.TokenPaid == true ? true : (itemproposalInfo.StatusProposal == 1 ? false : true)}
-                                                                                onClick={()=>getProposalReward(itemproposalInfo.index)}
+                                                                                onClick={() => getProposalReward(itemproposalInfo.index)}
                                                                             />
                                                                         </Tooltip>
                                                                     </Col>
                                                                     <Col flex="70px">
                                                                         <Row>
-                                                                            <span style={{color: 'green'}}>{itemproposalInfo.numAgree}人已赞成</span>
+                                                                            <span
+                                                                                style={{color: 'green'}}>{itemproposalInfo.numAgree}人已赞成</span>
                                                                         </Row>
                                                                         <Row>
-                                                                            <span style={{color: 'red'}}>{itemproposalInfo.numDisagree}人已拒绝</span>
+                                                                            <span
+                                                                                style={{color: 'red'}}>{itemproposalInfo.numDisagree}人已拒绝</span>
                                                                         </Row>
                                                                     </Col>
                                                                 </Row>
-
                                                             </Col>
-
                                                         </Row>
-
-
                                                     </Card>
                                                 </Badge.Ribbon>
 
@@ -535,8 +523,6 @@ export default function Root() {
                                                                                 icon={<CheckCircleOutlined/>}
                                                                                 disabled={Date.parse(new Date().toString()) / 1000 < itemproposalInfo.endTime ? false : true}
                                                                                 onClick={() => handleVote(1, itemproposalInfo.index)}
-
-                                                                                //onClick={()=>console.log(Date.parse(new Date().toString())/1000)}
                                                                             />
 
                                                                         </Tooltip>
@@ -544,9 +530,7 @@ export default function Root() {
                                                                     <Col flex="70px">
                                                                         {itemproposalInfo.numAgree}人已赞成
                                                                     </Col>
-
                                                                 </Row>
-
                                                                 <Row>
                                                                     <Col flex="30px">
                                                                         <Tooltip
@@ -560,33 +544,31 @@ export default function Root() {
 
                                                                         </Tooltip>
                                                                     </Col>
-
                                                                     <Col flex="70px">
                                                                         {itemproposalInfo.numDisagree}人已拒绝
                                                                     </Col>
                                                                 </Row>
-
-
                                                             </Col>
                                                         </Row>
-
-
                                                     </Card>
                                                 </Badge.Ribbon>
-
                                             }
-
-
                                             <p></p>
                                         </div>
-
-
                                     ))
-                                    : '暂无提案'
+                                    :
+                                    <Card hoverable={true}>
+                                        <Typography
+                                            style={{margin: '40px 16px', color: 'rgba(0, 0, 0, 0.6)', fontSize: '1.3rem',textAlign: 'center'}}
+                                        >
+                                            暂无提案
+                                        </Typography>
+                                    </Card>
+
+
 
                             }
                         </div>
-
 
 
                     </Content>
