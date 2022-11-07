@@ -17,7 +17,6 @@ contract MyERC20 is ERC20 {
         _mint(msg.sender, 10000); //给msg.sender发10000钱
         claimedTokenUserList[msg.sender] = true;
 
-
     }
 
 }

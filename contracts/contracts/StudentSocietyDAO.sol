@@ -47,6 +47,7 @@ contract StudentSocietyDAO {
         UserNFT = new MyERC721("UserNFT","UN");
 
     }
+
     //新建提案
     function addNewProposal(string calldata ProposalContent) public {
         require(UserToken.balanceOf(msg.sender) >= 1000, "You don't have enough token to initiate a proposal");//确认积分足够发起提案
@@ -89,6 +90,7 @@ contract StudentSocietyDAO {
 
         return (proposer, content, startTime, endTime, status,num,Token);
     }
+
     // 统计提案投票情况
     function getProposalStatus(uint proposalIndex, uint256 nowTime) public view returns (uint) {
         if (nowTime > _AllProposals.ProposalInfo[proposalIndex].endTime) {
@@ -106,12 +108,10 @@ contract StudentSocietyDAO {
 
     //投票
     function addNewVote(uint content, uint proposalIndex ) public {
-
         require(UserToken.balanceOf(msg.sender) >= 100, "You don't have enough token to vote");
         UserToken.transferFrom(msg.sender, address(this), 100); // 委托转账给本合约
 
         if (content == 1){_AllProposals.ProposalInfo[proposalIndex].numAgree++;}
         else if (content == 2){_AllProposals.ProposalInfo[proposalIndex].numDisagree++;}
-
     }
 }

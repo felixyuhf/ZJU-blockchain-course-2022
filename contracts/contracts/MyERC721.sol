@@ -23,6 +23,7 @@ contract MyERC721 is ERC721URIStorage {
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
+    //初始化用户NFT相关信息
     function InitUserNFT () public{
 
         UserNFT memory NewUserNFT = UserNFT({
@@ -43,13 +44,14 @@ contract MyERC721 is ERC721URIStorage {
         _AllUserNFT.UserNFTInfo[msg.sender].NFTURI);
     }
 
+    //提案通过后调用
     function addNumPassedProposal () public{
 
        _AllUserNFT.UserNFTInfo[msg.sender].numPassedProposal++;
 
     }
 
-
+    //颁发NFT奖励
     function awardItem(address player, string memory tokenURI) public returns (uint256)
     {
         uint256 newItemId = _tokenIds.current();
